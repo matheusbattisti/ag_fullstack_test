@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const db = require('./database');
 const { generateItinerary } = require('./gemini');
 
@@ -9,6 +10,9 @@ const PORT = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
+
+// Serve static files from React build in production
+app.use(express.static(path.join(__dirname, '../client/dist')));
 
 // API Endpoints
 
@@ -117,6 +121,11 @@ app.delete('/api/trips/:id', (req, res) => {
 
         res.json({ success: true });
     });
+});
+
+// Catch-all route - serve React SPA for any non-API route
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/dist/index.html'));
 });
 
 app.listen(PORT, () => {
